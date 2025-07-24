@@ -1,0 +1,23 @@
+﻿@using BookShop.Entities.Models
+@model Category
+@{ViewData["title"]="Create New Category";}
+<form asp-action="SaveCreate"method="Post">
+	<div>
+		<label asp-for="CatName"></label>
+		<input asp-for="CatName" class="form-control" />
+		<span asp-validation-for="CatName" class="text-danger"></span>
+	</div>
+
+
+	<div>
+		<label asp-for="CatOrder"></label>
+		<input asp-for="CatOrder" class="form-control" />
+		<span asp-validation-for="CatOrder" class="text-danger"></span>
+	</div>
+
+
+	<div>
+		<input type="submit" value="Save" class="btn-success" />/
+		<a asp-action="Show" class="btn-secondary">Back To List</a>
+	</div>
+</form>
