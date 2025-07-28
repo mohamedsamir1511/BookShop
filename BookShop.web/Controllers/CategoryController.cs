@@ -1,4 +1,4 @@
-﻿using BookShop.DAL.Context;
+﻿using BookShop.DAL.UnitOfwork.Interfaces;
 using BookShop.Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,11 +6,11 @@ namespace BookShop.web.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryController(ApplicationDbContext db)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -18,66 +18,74 @@ namespace BookShop.web.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        public IActionResult SaveCreate(Category category)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveCreate(Category category)
         {
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(category);
-                _db.SaveChanges();
+                await _unitOfWork.Categories.AddAsync(category);
+                await _unitOfWork.CompleteAsync();
                 return RedirectToAction(nameof(Show));
             }
-            return View("Create",category);
+            return View("Create", category);
         }
 
-
-        public IActionResult Show()
+        public async Task<IActionResult> Show()
         {
-            var Categories= _db.Categories.ToList();
-            return View("Categories",Categories);
+            var categories = await _unitOfWork.Categories.GetAllAsync();
+            var sorted = categories.OrderBy(c => c.CatOrder)
+                                   .ThenByDescending(c => c.CatName)
+                                   .ToList();
+
+            return View("Categories", sorted);
         }
+
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var category = _db.Categories.Find(id);
-            if (category == null)//if i wrote wrong id or not exist id
-                return NotFound();
-            return View(category);
-        }
-
-        [HttpPost]
-        public IActionResult SaveEdit(Category category)
-        {
-            if (ModelState.IsValid)
-            {
-                _db.Categories.Update(category);
-                _db.SaveChanges();
-                return RedirectToAction(nameof(Show));
-            }
-            return View(category);
-        }
-        [HttpGet]
-        public IActionResult Details(int id)
-        {
-            var category = _db.Categories.Find(id);
+            var category = await _unitOfWork.Categories.GetByIdAsync(id);
             if (category == null)
                 return NotFound();
+
             return View(category);
         }
-        
-        [HttpGet]
-        public IActionResult Delete(int id)
-        {
-            var category = _db.Categories.Find(id);
-            if (category == null) return NotFound();
 
-            _db.Categories.Remove(category);
-            _db.SaveChanges();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveEdit(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Categories.Update(category);
+                await _unitOfWork.CompleteAsync();
+                return RedirectToAction(nameof(Show));
+            }
+            return View(category);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            if (category == null)
+                return NotFound();
+
+            return View(category);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            if (category == null)
+                return NotFound();
+
+            _unitOfWork.Categories.Delete(category);
+            await _unitOfWork.CompleteAsync();
 
             return RedirectToAction(nameof(Show));
         }
-
-
-
     }
 }

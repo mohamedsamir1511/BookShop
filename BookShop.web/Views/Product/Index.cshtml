@@ -1,0 +1,52 @@
+﻿@using BookShop.Entities.Models
+@model IEnumerable<Product>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<h2>Product List</h2>
+
+<a asp-action="Create" class="btn btn-primary">Create A New Product</a>
+
+<table class="table table-hover table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Author</th>
+            <th>Price ($)</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Title</td>
+                <td>
+                    @{
+                        var description = product.Description ?? "";
+                        var shortdesc = description.Length > 50
+                        ? description.Substring(0, 50) + "... Read More"
+                        : description;
+                    }
+                    @shortdesc
+                    @if (description.Length > 50)
+                    {
+                        <a asp-action="Details" asp-route-id="@product.Id">Read More</a>
+                    }
+                </td>
+                <td>@product.Author</td>
+                <td>@product.Price.ToString("0.00")</td>
+                <td>@product.Category?.CatName</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

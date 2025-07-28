@@ -18,6 +18,7 @@ namespace BookShop.Entities.Models
         public DateTime CreatedDate { get; set; }
         //[Column("isDeleted")]
         public bool MarkedAsDeleted { get; set; }
+        public ICollection<Product>Products=new HashSet<Product>();
 
 
 

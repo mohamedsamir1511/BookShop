@@ -1,4 +1,8 @@
 using BookShop.DAL.Context;
+using BookShop.DAL.Interfaces;
+using BookShop.DAL.Repositories;
+using BookShop.DAL.UnitOfwork.Classes;
+using BookShop.DAL.UnitOfwork.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookShop.web
@@ -16,6 +20,10 @@ namespace BookShop.web
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             }
             );
+            
+            builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+            builder.Services.AddScoped<IProductRepository,ProductRepository>();
+            builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

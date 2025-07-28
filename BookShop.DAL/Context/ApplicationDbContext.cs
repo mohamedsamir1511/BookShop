@@ -1,4 +1,5 @@
-﻿using BookShop.DataAccess.Configurations;
+﻿using BookShop.DAL.Configurations;
+using BookShop.DataAccess.Configurations;
 using BookShop.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,10 +15,12 @@ namespace BookShop.DAL.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext>options):base(options) { }
 
         public DbSet<Category>Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
